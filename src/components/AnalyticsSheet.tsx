@@ -113,8 +113,8 @@ export function AnalyticsSheet({ open, onClose }: AnalyticsSheetProps) {
   );
 
   const monthlyData = useMemo(
-    () => computeMonthlyTrend(filtered, 6),
-    [filtered]
+    () => computeMonthlyTrend(filtered, dateRange, offset),
+    [filtered, dateRange, offset]
   );
 
   const modalIncome = useMemo(

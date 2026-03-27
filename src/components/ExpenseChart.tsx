@@ -114,7 +114,7 @@ function ExpenseChartInner() {
       : "No income recorded yet";
 
   const monthlyData = useMemo(
-    () => computeMonthlyTrend(state.transactions, 6),
+    () => computeMonthlyTrend(state.transactions),
     [state.transactions]
   );
 

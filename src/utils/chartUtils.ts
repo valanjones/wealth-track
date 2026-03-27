@@ -166,21 +166,75 @@ export function computeCategoryBreakdown(
 
 export function computeMonthlyTrend(
   transactions: Transaction[],
-  monthCount = 6
+  range: ChartDateRange = "all",
+  offset = 0
 ): { month: string; income: number; expense: number }[] {
   const now = new Date();
-  const months: { month: string; key: string; income: number; expense: number }[] = [];
+  if (offset !== 0) {
+    now.setMonth(now.getMonth() + offset);
+  }
 
-  for (let i = monthCount - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
-    const label = d.toLocaleString("en-IN", {
+  // Determine the start and end months based on the selected range
+  let startDate: Date;
+  let endDate: Date;
+
+  switch (range) {
+    case "this_month": {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    }
+    case "last_month": {
+      const lm = new Date(now);
+      lm.setMonth(now.getMonth() - 1);
+      startDate = new Date(lm.getFullYear(), lm.getMonth(), 1);
+      endDate = new Date(lm.getFullYear(), lm.getMonth(), 1);
+      break;
+    }
+    case "last_3_months": {
+      const s = new Date(now);
+      s.setMonth(now.getMonth() - 2);
+      startDate = new Date(s.getFullYear(), s.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    }
+    case "last_6_months": {
+      const s = new Date(now);
+      s.setMonth(now.getMonth() - 5);
+      startDate = new Date(s.getFullYear(), s.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    }
+    case "this_year": {
+      startDate = new Date(now.getFullYear(), 0, 1);
+      endDate = new Date(now.getFullYear(), 11, 1);
+      break;
+    }
+    case "all":
+    default: {
+      // Default: rolling 6 months ending at current month
+      const s = new Date(now);
+      s.setMonth(now.getMonth() - 5);
+      startDate = new Date(s.getFullYear(), s.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    }
+  }
+
+  // Build month buckets from startDate to endDate
+  const months: { month: string; key: string; income: number; expense: number }[] = [];
+  const cursor = new Date(startDate);
+  while (cursor <= endDate) {
+    const monthKey = `${cursor.getFullYear()}-${cursor.getMonth()}`;
+    const label = cursor.toLocaleString("en-IN", {
       month: "short",
       year: "2-digit",
     });
     months.push({ month: label, key: monthKey, income: 0, expense: 0 });
+    cursor.setMonth(cursor.getMonth() + 1);
   }
 
+  // Fill in data
   transactions.forEach((t) => {
     const tDate = new Date(t.date);
     const tKey = `${tDate.getFullYear()}-${tDate.getMonth()}`;
@@ -193,3 +247,4 @@ export function computeMonthlyTrend(
 
   return months.map(({ month, income, expense }) => ({ month, income, expense }));
 }
+

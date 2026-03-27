@@ -21,6 +21,7 @@ import { useFinance } from "@/context/FinanceContext";
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "@/types";
 import type { Category, TransactionType, Transaction } from "@/types";
 import { parseAmount } from "@/utils/formatCurrency";
+import { CATEGORY_COLORS } from "@/components/CategoryBadge";
 
 interface FormErrors {
   title?: string;
@@ -265,7 +266,13 @@ export function TransactionForm() {
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
-                    {cat}
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: CATEGORY_COLORS[cat] ?? "#6b7280" }}
+                      />
+                      {cat}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

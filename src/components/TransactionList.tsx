@@ -81,7 +81,7 @@ const TransactionRow = React.memo(function TransactionRow({
       </div>
 
       {/* Title + Category (stacked on mobile) */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 md:flex-none md:w-44 min-w-0">
         <div className="flex items-center gap-1">
           <p className="font-medium text-sm truncate">{transaction.title}</p>
           {hasNotes && (
@@ -96,13 +96,13 @@ const TransactionRow = React.memo(function TransactionRow({
           )}
         </div>
         {/* Category badge visible only on mobile */}
-        <div className="mt-1 md:hidden">
+        <div className="mt-1 md:hidden text-[11px]">
           <CategoryBadge category={transaction.category} />
         </div>
       </div>
 
       {/* Category Badge — desktop only */}
-      <div className="hidden md:flex w-36 justify-center shrink-0">
+      <div className="hidden md:flex w-36 justify-start shrink-0 text-[11px]">
         <CategoryBadge category={transaction.category} />
       </div>
 
