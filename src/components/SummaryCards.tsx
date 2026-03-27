@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
@@ -25,7 +25,6 @@ function useCountUp(target: number, duration = 600) {
       const elapsed = timestamp - startTimeRef.current;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const value =
         startValueRef.current + (target - startValueRef.current) * eased;
@@ -47,7 +46,7 @@ function useCountUp(target: number, duration = 600) {
   return current;
 }
 
-export function SummaryCards() {
+function SummaryCardsInner() {
   const { totalIncome, totalExpenses, netBalance } = useFinance();
 
   const animatedIncome = useCountUp(totalIncome);
@@ -56,7 +55,6 @@ export function SummaryCards() {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {/* Total Income */}
       <Card className="relative overflow-hidden border-emerald-500/20 shadow-sm transition-all duration-200 hover:shadow-md">
         <div className="absolute top-0 right-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-emerald-500/10" />
         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -74,7 +72,6 @@ export function SummaryCards() {
         </CardContent>
       </Card>
 
-      {/* Total Expenses */}
       <Card className="relative overflow-hidden border-rose-500/20 shadow-sm transition-all duration-200 hover:shadow-md">
         <div className="absolute top-0 right-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-rose-500/10" />
         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -92,7 +89,6 @@ export function SummaryCards() {
         </CardContent>
       </Card>
 
-      {/* Net Balance */}
       <Card
         className={`relative overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md sm:col-span-2 lg:col-span-1 ${
           netBalance >= 0
@@ -136,3 +132,5 @@ export function SummaryCards() {
     </div>
   );
 }
+
+export const SummaryCards = React.memo(SummaryCardsInner);

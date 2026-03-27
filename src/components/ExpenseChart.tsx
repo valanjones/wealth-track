@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -76,12 +76,11 @@ function BarCustomTooltip({ active, payload, label }: BarTooltipProps) {
   );
 }
 
-export function ExpenseChart() {
+function ExpenseChartInner() {
   const { state, expenseCategoryBreakdown, incomeCategoryBreakdown } =
     useFinance();
   const [pieView, setPieView] = useState<"expenses" | "income">("expenses");
 
-  // Build monthly trend data for last 6 months
   const monthlyData = useMemo(() => {
     const now = new Date();
     const months: { month: string; income: number; expense: number }[] = [];
@@ -113,7 +112,6 @@ export function ExpenseChart() {
     return months;
   }, [state.transactions]);
 
-  // Select breakdown based on sub-toggle
   const activeBreakdown =
     pieView === "expenses" ? expenseCategoryBreakdown : incomeCategoryBreakdown;
 
@@ -145,7 +143,6 @@ export function ExpenseChart() {
           </TabsList>
 
           <TabsContent value="category">
-            {/* Sub-toggle: Expenses / Income */}
             <div className="flex justify-center mb-4">
               <div className="flex rounded-lg border bg-muted/50 p-0.5">
                 <Button
@@ -203,7 +200,6 @@ export function ExpenseChart() {
                   </PieChart>
                 </ResponsiveContainer>
 
-                {/* Legend */}
                 <div className="flex flex-wrap justify-center gap-3 mt-2">
                   {pieData.map((item) => (
                     <div
@@ -281,3 +277,5 @@ export function ExpenseChart() {
     </Card>
   );
 }
+
+export const ExpenseChart = React.memo(ExpenseChartInner);

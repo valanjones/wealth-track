@@ -1,10 +1,11 @@
 "use client";
 
+import React from "react";
 import { PiggyBank, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFinance } from "@/context/FinanceContext";
 
-export function EmptyState() {
+function EmptyStateInner() {
   const { dispatch } = useFinance();
 
   return (
@@ -28,3 +29,5 @@ export function EmptyState() {
     </div>
   );
 }
+
+export const EmptyState = React.memo(EmptyStateInner);

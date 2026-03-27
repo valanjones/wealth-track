@@ -6,7 +6,9 @@ import React, {
   useReducer,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
+import { toast } from "sonner";
 import type {
   Transaction,
   FinanceState,
@@ -122,6 +124,7 @@ interface CategoryBredownItem<T extends string> {
 interface FinanceContextValue {
   state: FinanceState;
   dispatch: React.Dispatch<FinanceAction>;
+  dispatchWithToast: (action: FinanceAction) => void;
   totalIncome: number;
   totalExpenses: number;
   netBalance: number;
@@ -135,6 +138,28 @@ const FinanceContext = createContext<FinanceContextValue | null>(null);
 export function FinanceProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(financeReducer, initialState);
   const [isLoaded, setIsLoaded] = React.useState(false);
+
+  // Dispatch wrapper that shows toast notifications
+  const dispatchWithToast = useCallback(
+    (action: FinanceAction) => {
+      dispatch(action);
+
+      switch (action.type) {
+        case "ADD_TRANSACTION":
+          toast.success("Transaction added successfully");
+          break;
+        case "EDIT_TRANSACTION":
+          toast.success("Transaction updated successfully");
+          break;
+        case "DELETE_TRANSACTION":
+          toast.error("Transaction deleted", {
+            description: "This action cannot be undone",
+          });
+          break;
+      }
+    },
+    []
+  );
 
   // Load transactions from localStorage on mount
   useEffect(() => {
@@ -267,6 +292,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     () => ({
       state,
       dispatch,
+      dispatchWithToast,
       totalIncome,
       totalExpenses,
       netBalance,
@@ -276,6 +302,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       state,
+      dispatchWithToast,
       totalIncome,
       totalExpenses,
       netBalance,

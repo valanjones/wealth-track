@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -39,7 +39,7 @@ const emptyForm = {
 };
 
 export function TransactionForm() {
-  const { state, dispatch } = useFinance();
+  const { state, dispatchWithToast, dispatch } = useFinance();
   const { isFormOpen, editingTransaction } = state;
 
   const [form, setForm] = useState(emptyForm);
@@ -84,7 +84,7 @@ export function TransactionForm() {
     }
   }
 
-  function validate(): FormErrors {
+  const validate = useCallback((): FormErrors => {
     const errs: FormErrors = {};
 
     if (!form.title.trim()) {
@@ -118,40 +118,43 @@ export function TransactionForm() {
     }
 
     return errs;
-  }
+  }, [form]);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+      const validationErrors = validate();
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
 
-    setIsSubmitting(true);
+      setIsSubmitting(true);
 
-    const amount = parseAmount(form.amount);
-    const transaction: Transaction = {
-      id: editingTransaction?.id || crypto.randomUUID(),
-      title: form.title.trim(),
-      amount,
-      category: form.category as Category,
-      type: form.type,
-      date: new Date(form.date).toISOString(),
-      notes: form.notes.trim() || undefined,
-    };
+      const amount = parseAmount(form.amount);
+      const transaction: Transaction = {
+        id: editingTransaction?.id || crypto.randomUUID(),
+        title: form.title.trim(),
+        amount,
+        category: form.category as Category,
+        type: form.type,
+        date: new Date(form.date).toISOString(),
+        notes: form.notes.trim() || undefined,
+      };
 
-    if (editingTransaction) {
-      dispatch({ type: "EDIT_TRANSACTION", payload: transaction });
-    } else {
-      dispatch({ type: "ADD_TRANSACTION", payload: transaction });
-    }
+      if (editingTransaction) {
+        dispatchWithToast({ type: "EDIT_TRANSACTION", payload: transaction });
+      } else {
+        dispatchWithToast({ type: "ADD_TRANSACTION", payload: transaction });
+      }
 
-    setForm(emptyForm);
-    setErrors({});
-    setIsSubmitting(false);
-  }
+      setForm(emptyForm);
+      setErrors({});
+      setIsSubmitting(false);
+    },
+    [form, editingTransaction, validate, dispatchWithToast]
+  );
 
   function handleClose(open: boolean) {
     if (!open) {

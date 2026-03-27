@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Plus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -9,10 +10,18 @@ import { TransactionList } from "@/components/TransactionList";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { FilterBar } from "@/components/FilterBar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BudgetTracker } from "@/components/BudgetTracker";
 import { useFinance } from "@/context/FinanceContext";
 
 export default function Home() {
   const { dispatch } = useFinance();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -44,6 +53,11 @@ export default function Home() {
         {/* Summary Cards */}
         <section className="mb-6">
           <SummaryCards />
+        </section>
+
+        {/* Budget Tracker */}
+        <section className="mb-6">
+          <BudgetTracker />
         </section>
 
         <Separator className="mb-6" />
