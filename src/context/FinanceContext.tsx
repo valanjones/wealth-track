@@ -47,6 +47,7 @@ const initialState: FinanceState = {
     type: "all",
     category: "all",
     search: "",
+    dateRange: "all",
   },
   editingTransaction: null,
   isFormOpen: false,
@@ -111,6 +112,45 @@ function financeReducer(
 
     default:
       return state;
+  }
+}
+
+function filterByDateRange(t: Transaction, dateRange: string): boolean {
+  if (dateRange === "all") return true;
+
+  const date = new Date(t.date);
+  const now = new Date();
+
+  switch (dateRange) {
+    case "today":
+      return date.toDateString() === now.toDateString();
+    case "this_week": {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(now.getDate() - 7);
+      weekAgo.setHours(0, 0, 0, 0);
+      return date >= weekAgo;
+    }
+    case "this_month":
+      return (
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+      );
+    case "last_month": {
+      const lastMonth = new Date(now);
+      lastMonth.setMonth(now.getMonth() - 1);
+      return (
+        date.getMonth() === lastMonth.getMonth() &&
+        date.getFullYear() === lastMonth.getFullYear()
+      );
+    }
+    case "last_3_months": {
+      const threeMonthsAgo = new Date(now);
+      threeMonthsAgo.setMonth(now.getMonth() - 3);
+      threeMonthsAgo.setHours(0, 0, 0, 0);
+      return date >= threeMonthsAgo;
+    }
+    default:
+      return true;
   }
 }
 
@@ -232,6 +272,12 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       const search = state.filter.search.toLowerCase().trim();
       filtered = filtered.filter((t) =>
         t.title.toLowerCase().includes(search)
+      );
+    }
+
+    if (state.filter.dateRange !== "all") {
+      filtered = filtered.filter((t) =>
+        filterByDateRange(t, state.filter.dateRange)
       );
     }
 

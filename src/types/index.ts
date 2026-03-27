@@ -54,12 +54,21 @@ export interface Transaction {
   notes?: string;
 }
 
+export type DateRange =
+  | "all"
+  | "today"
+  | "this_week"
+  | "this_month"
+  | "last_month"
+  | "last_3_months";
+
 export interface FinanceState {
   transactions: Transaction[];
   filter: {
     type: "all" | TransactionType;
     category: Category | "all";
     search: string;
+    dateRange: DateRange;
   };
   editingTransaction: Transaction | null;
   isFormOpen: boolean;

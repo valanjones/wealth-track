@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { Pencil, Trash2, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -15,6 +21,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useFinance } from "@/context/FinanceContext";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { EmptyState } from "./EmptyState";
@@ -37,6 +48,7 @@ const TransactionRow = React.memo(function TransactionRow({
 }) {
   const { dispatchWithToast, dispatch } = useFinance();
   const isIncome = transaction.type === "income";
+  const hasNotes = !!transaction.notes && transaction.notes.trim().length > 0;
 
   const handleEdit = useCallback(() => {
     dispatch({ type: "SET_EDITING", payload: transaction });
@@ -70,7 +82,19 @@ const TransactionRow = React.memo(function TransactionRow({
 
       {/* Title + Category (stacked on mobile) */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{transaction.title}</p>
+        <div className="flex items-center gap-1">
+          <p className="font-medium text-sm truncate">{transaction.title}</p>
+          {hasNotes && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-3 h-3 text-muted-foreground hover:text-foreground cursor-help shrink-0 ml-1" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-48 text-xs">{transaction.notes}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
         {/* Category badge visible only on mobile */}
         <div className="mt-1 md:hidden">
           <CategoryBadge category={transaction.category} />
@@ -168,7 +192,7 @@ export function TransactionList() {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-480px)] min-h-[300px]">
+    <ScrollArea className="h-[calc(100vh-540px)] min-h-[300px]">
       <div className="space-y-2 pr-3">
         {filteredTransactions.map((transaction) => (
           <TransactionRow key={transaction.id} transaction={transaction} />

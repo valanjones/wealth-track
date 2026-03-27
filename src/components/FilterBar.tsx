@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Search, X, Download } from "lucide-react";
+import { Search, X, Download, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,28 @@ import {
 } from "@/components/ui/select";
 import { useFinance } from "@/context/FinanceContext";
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "@/types";
-import type { Category } from "@/types";
+import type { Category, DateRange } from "@/types";
 import { exportToCSV } from "@/utils/exportCSV";
 import { CATEGORY_COLORS } from "@/components/CategoryBadge";
+import { ImportCSV } from "@/components/ImportCSV";
+
+const DATE_RANGE_LABELS: Record<DateRange, string> = {
+  all: "All Time",
+  today: "Today",
+  this_week: "This Week",
+  this_month: "This Month",
+  last_month: "Last Month",
+  last_3_months: "Last 3 Months",
+};
+
+const DATE_RANGES: DateRange[] = [
+  "all",
+  "today",
+  "this_week",
+  "this_month",
+  "last_month",
+  "last_3_months",
+];
 
 export function FilterBar() {
   const { state, dispatch } = useFinance();
@@ -54,7 +73,8 @@ export function FilterBar() {
   const hasActiveFilters =
     filter.type !== "all" ||
     filter.category !== "all" ||
-    filter.search.trim() !== "";
+    filter.search.trim() !== "" ||
+    filter.dateRange !== "all";
 
   function handleTypeChange(type: "all" | "income" | "expense") {
     dispatch({
@@ -147,18 +167,21 @@ export function FilterBar() {
           </SelectContent>
         </Select>
 
-        {/* Export CSV */}
-        {transactions.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5 text-xs ml-auto"
-            onClick={() => exportToCSV(transactions)}
-          >
-            <Download className="h-3 w-3" />
-            Export CSV
-          </Button>
-        )}
+        {/* Import / Export CSV */}
+        <div className="flex items-center gap-2 ml-auto">
+          <ImportCSV />
+          {transactions.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
+              onClick={() => exportToCSV(transactions)}
+            >
+              <Download className="h-3 w-3" />
+              Export CSV
+            </Button>
+          )}
+        </div>
 
         {/* Clear Filters */}
         {hasActiveFilters && (
@@ -169,7 +192,12 @@ export function FilterBar() {
             onClick={() =>
               dispatch({
                 type: "SET_FILTER",
-                payload: { type: "all", category: "all", search: "" },
+                payload: {
+                  type: "all",
+                  category: "all",
+                  search: "",
+                  dateRange: "all",
+                },
               })
             }
           >
@@ -177,6 +205,27 @@ export function FilterBar() {
             Clear
           </Button>
         )}
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        {DATE_RANGES.map((range) => (
+          <Button
+            key={range}
+            variant={filter.dateRange === range ? "default" : "outline"}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() =>
+              dispatch({
+                type: "SET_FILTER",
+                payload: { dateRange: range },
+              })
+            }
+          >
+            {DATE_RANGE_LABELS[range]}
+          </Button>
+        ))}
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { ExpenseChart } from "@/components/ExpenseChart";
 import { FilterBar } from "@/components/FilterBar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BudgetTracker } from "@/components/BudgetTracker";
+import { QuickStats } from "@/components/QuickStats";
 import { useFinance } from "@/context/FinanceContext";
 
 export default function Home() {
@@ -58,6 +59,11 @@ export default function Home() {
         {/* Budget Tracker */}
         <section className="mb-6">
           <BudgetTracker />
+        </section>
+
+        {/* Quick Stats */}
+        <section className="mb-6">
+          <QuickStats />
         </section>
 
         <Separator className="mb-6" />
